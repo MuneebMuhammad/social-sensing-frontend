@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import Card from "../card/Card";
 import ChartComponent from "../chart/Chart";
 import {
@@ -9,6 +9,10 @@ import {
 import SentimentsCard from "../sentiments-card/SentimentsCard";
 import Papa from "papaparse";
 import { CompareKeywordContext } from "../../contexts/CompareKeyword.context";
+// import { useScreenshot } from 'use-react-screenshot'
+// import html2canvas from 'html2canvas';
+// import jsPDF from 'jspdf';
+
 const { useNavigate } = require("react-router-dom");
 
 export const SentimentResults = () => {
@@ -22,6 +26,9 @@ export const SentimentResults = () => {
   const [sentimentResults, setSentimentResults] = useState();
   const [positiveResults, setPositiveResults] = useState();
   const [negativeResults, setNegativeResults] = useState();
+
+  // const ref = useRef();
+  // const [image, takeScreenshot] = useScreenshot()
 
   useEffect(() => {
     const csvFilePath = "./sentiment_results.csv";
@@ -39,12 +46,35 @@ export const SentimentResults = () => {
     }
   }, [sentimentResults]);
 
+  // useEffect(() => {
+  //   if (data && data.length) {
+  //     const timer = setTimeout(() => {
+  //       takeScreenshot(ref.current);
+  //     }, 1000); 
+  
+  //     return () => clearTimeout(timer); 
+  //   }
+
+  // }, [data]);
+
+  // const handleExportToPDF = () => {
+  //   if (image) {
+  //     const pdf = new jsPDF({
+  //       orientation: 'landscape'
+  //     });
+  //     pdf.addImage(image, 'JPEG', 0, 0, 297, 150); 
+  //     pdf.save('sentiment_results.pdf');
+  //   } else {
+  //     console.error('No screenshot captured yet.');
+  //   }
+  // };
+
   const navigate = useNavigate();
 
   return (
     <>
       {data && data.length && (
-        <ResultsContainer>
+        <ResultsContainer ref={ref}>
           <CardsContainer>
             <Card
               image={"/chat.svg"}
@@ -100,6 +130,9 @@ export const SentimentResults = () => {
           </ChartsContainer>
         </ResultsContainer>
       )}
+
+      {/* <button onClick={handleExportToPDF}>Export to PDF</button> */}
+      
     </>
   );
 };

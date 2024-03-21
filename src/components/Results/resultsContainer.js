@@ -19,6 +19,15 @@ import jsPDF from "jspdf";
 import "jspdf-autotable";
 import { saveAs } from "file-saver";
 import { TempInitialDate } from "../../contexts/dummyData";
+import {
+  PDFViewer,
+  Document,
+  Page,
+  Text,
+  View,
+  StyleSheet,
+  PDFDownloadLink,
+} from "@react-pdf/renderer";
 
 const Container = styled.div`
   font-family: "Poppins", sans-serif;
@@ -186,7 +195,7 @@ const ResultsCard = () => {
   const [normalImage, setNormalImage] = useState(null);
 
   useEffect(() => {
-    const delay = 1000; 
+    const delay = 1000;
     const timeoutId = setTimeout(() => {
       html2canvas(document.body, {
         y: 370,
@@ -196,10 +205,9 @@ const ResultsCard = () => {
         setNormalImage(imageDataUrl);
       });
     }, delay);
-  
-    return () => clearTimeout(timeoutId); 
+
+    return () => clearTimeout(timeoutId);
   }, []);
-  
 
   const {
     topResultMatch,
@@ -419,79 +427,115 @@ const ResultsCard = () => {
     } else if (selectedExport === "PPTP") {
       exportToPPTP(tweets);
     } else if (selectedExport === "Normal") {
-      exportNormal();
+      exportNormal(tweets);
     }
   };
 
-  const exportNormal = () => {
-    if (!normalImage) {
-      console.log("Image is still being processed. Please wait.");
-      html2canvas(document.body, {
-        y: 370,
-        height: 1860,
-      }).then((canvas) => {
-        const dataUrl = canvas.toDataURL("image/png");
-        const link = document.createElement("a");
-        link.href = dataUrl;
-        link.download = "export.png";
-        link.click();
-      });
-      
-    } else {
-      console.log("from useEffect");
-      const link = document.createElement("a");
-      link.href = normalImage;
-      link.download = "export.png";
-      link.click();
-    }
+  // const exportNormal = () => {
+  //   if (!normalImage) {
+  //     console.log("Image is still being processed. Please wait.");
+  //     html2canvas(document.body, {
+  //       y: 370,
+  //       height: 1860,
+  //     }).then((canvas) => {
+  //       const dataUrl = canvas.toDataURL("image/png");
+  //       const link = document.createElement("a");
+  //       link.href = dataUrl;
+  //       link.download = "export.png";
+  //       link.click();
+  //     });
+  //   } else {
+  //     console.log("from useEffect");
+  //     const link = document.createElement("a");
+  //     link.href = normalImage;
+  //     link.download = "export.png";
+  //     link.click();
+  //   }
+  // };
+
+  const exportNormal = (tweets) => {
+    // Convert tweet data to a string
+    const tweetDataString = tweets
+      .map((tweet, index) => {
+        const profileData = tweet[0].profileData;
+        const additionalMetrics = tweet[0].additionalMetrics;
+        return (
+          `${index + 1}) ` +
+          `${profileData.handle || ""},` +
+          `${profileData.name || ""},` +
+          `${profileData.matches || ""},` +
+          `${profileData.content || ""},` +
+          `${profileData.sentiment || ""},` +
+          `${profileData.timePublished || ""},` +
+          `${profileData.location || ""},` +
+          `${profileData.platform || ""},` +
+          `${profileData.engagement || ""},` +
+          `${profileData.reach || ""},` +
+          `${profileData.trending || ""},` +
+          `${additionalMetrics.hearts || ""},` +
+          `${additionalMetrics.shares || ""},` +
+          `${additionalMetrics.users || ""}`
+        );
+      })
+      .join("\n");
+
+    const blob = new Blob([tweetDataString], { type: "text/plain" });
+
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = "export.txt";
+
+    link.click();
   };
 
-  const exportToPDF = (tweets) => {
-    const pdf = new jsPDF("l", "px", "a4"); // 'l' for landscape mode
-    const tableData = tweets.map((tweet, index) => [
-      tweet[0].profileData.handle,
-      tweet[0].profileData.name,
-      tweet[0].profileData.matches,
-      tweet[0].profileData.content,
-      tweet[0].profileData.sentiment,
-      tweet[0].profileData.timePublished,
-      tweet[0].profileData.location,
-      tweet[0].profileData.platform,
-      tweet[0].profileData.engagement,
-      tweet[0].profileData.reach,
-      tweet[0].profileData.trending,
-      tweet[0].additionalMetrics.hearts,
-      tweet[0].additionalMetrics.shares,
-      tweet[0].additionalMetrics.users,
-    ]);
 
-    // Adjust margin
-    const margin = { top: 20, right: 5, bottom: 20, left: 5 };
 
-    pdf.autoTable({
-      head: [
-        [
-          "Handle",
-          "Name",
-          "Matches",
-          "Content",
-          "Sentiment",
-          "Time Published",
-          "Location",
-          "Platform",
-          "Engage",
-          "Reach",
-          "Trending",
-          "Hearts",
-          "Shares",
-          "Users",
-        ],
-      ],
-      body: tableData,
-      margin: margin,
-    });
-    pdf.save("export.pdf");
-  };
+  // const exportToPDF = (tweets) => {
+  //   const pdf = new jsPDF("l", "px", "a4");
+  //   const tableData = tweets.map((tweet, index) => [
+  //     tweet[0].profileData.handle,
+  //     tweet[0].profileData.name,
+  //     tweet[0].profileData.matches,
+  //     tweet[0].profileData.content,
+  //     tweet[0].profileData.sentiment,
+  //     tweet[0].profileData.timePublished,
+  //     tweet[0].profileData.location,
+  //     tweet[0].profileData.platform,
+  //     tweet[0].profileData.engagement,
+  //     tweet[0].profileData.reach,
+  //     tweet[0].profileData.trending,
+  //     tweet[0].additionalMetrics.hearts,
+  //     tweet[0].additionalMetrics.shares,
+  //     tweet[0].additionalMetrics.users,
+  //   ]);
+
+  //   // Adjust margin
+  //   const margin = { top: 20, right: 5, bottom: 20, left: 5 };
+
+  //   pdf.autoTable({
+  //     head: [
+  //       [
+  //         "Handle",
+  //         "Name",
+  //         "Matches",
+  //         "Content",
+  //         "Sentiment",
+  //         "Time Published",
+  //         "Location",
+  //         "Platform",
+  //         "Engage",
+  //         "Reach",
+  //         "Trending",
+  //         "Hearts",
+  //         "Shares",
+  //         "Users",
+  //       ],
+  //     ],
+  //     body: tableData,
+  //     margin: margin,
+  //   });
+  //   pdf.save("export.pdf");
+  // };
 
   const exportToCSV = (tweets) => {
     const csvData = tweets.map((data, index) => ({
@@ -805,6 +849,16 @@ const ResultsCard = () => {
               onChange={handleExportChange}
               value={selectedExport}
             />
+            {selectedExport === "PDF" && (
+              <PDFDownloadLink
+                document={<MyPdf tweets={tweets} />}
+                fileName="tweets.pdf"
+              >
+                {({ loading }) =>
+                  loading ? "Loading document..." : "Download now!"
+                }
+              </PDFDownloadLink>
+            )}
           </Row>
         ) : (
           <Row>
