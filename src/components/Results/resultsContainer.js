@@ -488,7 +488,114 @@ const ResultsCard = () => {
     link.click();
   };
 
+  const MyPdf = ({ tweets }) => (
+    <Document>
+      <Page size="A4" style={styles.page}>
+        {tweets.map((tweet, index) => (
+          <View key={index} style={styles.tweetContainer}>
+            <View style={styles.column}>
+              <Text style={styles.smallText}>Tweeted</Text>
+              <Text style={styles.text}>{tweet[0].profileData.content}</Text>
+              <Text style={styles.smallText}>
+                Published on {tweet[0].profileData.timePublished} |{" "}
+                {tweet[0].profileData.platform} |{" "}
+                {tweet[0].profileData.location} | {tweet[0].profileData.name}
+              </Text>
+            </View>
+            <View style={styles.secondColumn}>
+              <Text style={[styles.smallText, styles.smallerText]}>
+                Matches: {tweet[0].profileData.matches}
+              </Text>
+              <Text
+                style={[
+                  styles.smallText,
+                  styles.yellowText,
+                  styles.smallerText,
+                ]}
+              >
+                Sentiment: {tweet[0].profileData.sentiment}
+              </Text>
+              <Text
+                style={[styles.smallText, styles.boldText, styles.smallerText]}
+              >
+                Engagement: {tweet[0].profileData.engagement}
+              </Text>
+              <Text style={[styles.smallText, styles.smallerText]}>
+                Potential Reach: {tweet[0].profileData.reach}
+              </Text>
+              <Text style={[styles.smallText, styles.smallerText]}>
+                Retweets: {tweet[0].additionalMetrics.shares}
+              </Text>
+              <Text style={[styles.smallText, styles.smallerText]}>
+                Twitter Likes: {tweet[0].additionalMetrics.hearts}
+              </Text>
+              <Text style={[styles.smallText, styles.smallerText]}>
+                Users: {tweet[0].additionalMetrics.users}
+              </Text>
+              <Text style={[styles.smallText, styles.smallerText]}>
+                Trending Post: {tweet[0].profileData.trending}
+              </Text>
+            </View>
+          </View>
+        ))}
+      </Page>
+    </Document>
+  );
 
+  const styles = StyleSheet.create({
+    page: {
+      flexDirection: "column",
+      padding: 20,
+    },
+    tweetContainer: {
+      marginBottom: 20,
+      borderWidth: 1,
+      borderColor: "#000",
+      padding: 10,
+      flexDirection: "row",
+      alignItems: "flex-start",
+      justifyContent: "space-between",
+    },
+    column: {
+      width: "70%",
+      marginRight: "5%",
+    },
+    secondColumn: {
+      width: "25%",
+      marginRight: 0,
+    },
+    heading: {
+      fontSize: 16,
+      fontWeight: "bold",
+      marginBottom: 5,
+    },
+    text: {
+      fontSize: 12,
+      marginBottom: 5,
+    },
+    smallText: {
+      fontSize: 10,
+      color: "#999",
+    },
+    boldText: {
+      fontWeight: "bold",
+      color: "#000",
+    },
+    yellowText: {
+      color: "#FFD700",
+    },
+    smallerText: {
+      fontSize: 8,
+    },
+  });
+
+  const exportToPDF = ({ tweets }) => (
+    <PDFDownloadLink document={<MyPdf tweets={tweets} />} fileName="export.pdf">
+      {({ blob, url, loading, error }) =>
+        loading ? "Loading document..." : "Download now!"
+      }
+    </PDFDownloadLink>
+  );
 
   // const exportToPDF = (tweets) => {
   //   const pdf = new jsPDF("l", "px", "a4");
